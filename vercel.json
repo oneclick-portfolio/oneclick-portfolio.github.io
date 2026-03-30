@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "functions": {
+    "server.js": {
+      "includeFiles": [
+        "themes/**",
+        "src/**",
+        "resume/**",
+        "config.js",
+        "favicon.svg",
+        "favicon.ico",
+        "tests/rxresume.schema.json"
+      ]
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ]
+}

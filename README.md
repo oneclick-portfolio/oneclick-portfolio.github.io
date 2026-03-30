@@ -44,6 +44,20 @@ Optional:
 export PORT=8080
 ```
 
+### Deploying on Vercel
+
+This project serves static files and reads theme assets from disk at runtime,
+so Vercel must include those files in the `server.js` function bundle.
+
+Add `vercel.json` in the repo root with `functions.server.js.includeFiles`
+covering `themes/**` (already included in this repo).
+
+Deploy command:
+
+```bash
+vercel --prod
+```
+
 ## Structure
 
 ```

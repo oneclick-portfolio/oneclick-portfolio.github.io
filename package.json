@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "test": "node tests/json-processing.test.js"
+    "test": "node tests/json-processing.test.js",
+    "vercel": "vercel",
+    "deploy:vercel": "vercel --prod"
   },
   "keywords": [
     "portfolio",
