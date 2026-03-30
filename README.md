@@ -2,6 +2,48 @@
 
 A static portfolio site that renders content strictly from the [RxResume JSON schema](https://rxresu.me/schema.json).
 
+## One-Click GitHub Theme Deployment
+
+The landing page now supports:
+
+1. Connect GitHub App (user-to-server consent flow).
+2. Choose any theme.
+3. Deploy that theme to a new repository with GitHub Pages workflow pre-configured.
+
+### GitHub App setup
+
+Create a GitHub App and configure:
+
+- User authorization callback URL: `http://localhost:8080/auth/github/callback`
+- Install URL (optional for better UX): `https://github.com/apps/<your-app-slug>/installations/new`
+
+Recommended app permissions:
+
+- Repository permissions:
+    - Administration: Read and write (create repo/page settings)
+    - Contents: Read and write (write files)
+    - Workflows: Read and write (create workflow file)
+    - Pages: Read and write (enable Pages deployment)
+- Account permissions:
+    - Metadata: Read-only
+
+Install the app for your GitHub user account.
+
+Then run with environment variables:
+
+```bash
+export GITHUB_APP_CLIENT_ID=your_client_id
+export GITHUB_APP_CLIENT_SECRET=your_client_secret
+export GITHUB_APP_INSTALL_URL=https://github.com/apps/your-app-slug/installations/new
+make dev
+```
+
+Optional:
+
+```bash
+export PORT=8080
+```
+
 ## Structure
 
 ```

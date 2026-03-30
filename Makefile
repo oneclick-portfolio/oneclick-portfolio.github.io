@@ -10,9 +10,9 @@ help: ## Show this help message
 
 # ── Development ──────────────────────────────────────────────────────────────
 
-dev: ## Serve the site locally with Python (no Docker required)
+dev: ## Run local app server (static site + GitHub OAuth/deploy APIs)
 	@echo "Serving on http://localhost:$(PORT)"
-	python3 -m http.server $(PORT)
+	PORT=$(PORT) node server.js
 
 test: ## Run schema validation tests
 	npm test

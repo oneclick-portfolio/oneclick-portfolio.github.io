@@ -2,8 +2,10 @@
   "name": "portfolio-website",
   "version": "1.0.0",
   "description": "Portfolio website for Arindam Kumar Nath",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
     "test": "node tests/json-processing.test.js"
   },
   "keywords": [
@@ -15,5 +17,9 @@
   "license": "MIT",
   "devDependencies": {
     "ajv": "^8.18.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
   }
 }

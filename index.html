@@ -3,355 +3,914 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0b0f14" />
-  <title>Portfolio</title>
+  <meta name="theme-color" content="#ececec" />
+  <title>Portfolio Builder</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0b0f14;
-      --surface: #131920;
-      --surface-2: #1a2330;
-      --border: rgba(255,255,255,0.08);
-      --text: #f8f9fa;
-      --muted: #8b95a1;
-      --accent: #4f8ef7;
-      --accent-glow: rgba(79,142,247,0.18);
+      --paper: #ededed;
+      --ink: #0f0f0f;
+      --muted: #585858;
+      --line: #c7c7c7;
+      --panel: #ffffff;
+      --accent: #0e7c74;
+      --accent-soft: #d9f2ee;
+      --shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+      --radius: 12px;
     }
 
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+    *, *::before, *::after {
+      box-sizing: border-box;
     }
 
-    /* ── Header ── */
-    .header {
-      padding: 1.5rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      border-bottom: 1px solid var(--border);
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 88% -20%, #ffffff 0%, #ececec 60%);
+      color: var(--ink);
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      min-height: 100%;
     }
 
-    .brand-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 12px var(--accent);
-      flex-shrink: 0;
-    }
-
-    .brand-name {
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      min-width: 4ch;
-    }
-
-    /* ── Hero ── */
-    .hero {
-      padding: 5rem 2rem 3rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(79,142,247,0.12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero-eyebrow {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1rem;
-    }
-
-    .hero-title {
-      font-size: clamp(2rem, 5vw, 3.25rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-    }
-
-    .hero-sub {
-      font-size: 1.0625rem;
-      color: var(--muted);
-      max-width: 36ch;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    /* ── Grid ── */
-    .grid-wrap {
-      padding: 3rem 2rem 5rem;
-      max-width: 1080px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .grid-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 1.5rem;
-    }
-
-    .theme-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1.25rem;
-    }
-
-    /* ── Theme Card ── */
-    .theme-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.75rem 1.5rem 1.5rem;
-      text-decoration: none;
+    a {
       color: inherit;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-      overflow: hidden;
-      cursor: pointer;
+      text-decoration: none;
     }
 
-    .theme-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(79,142,247,0.4);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(79,142,247,0.15);
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px 20px 56px;
     }
 
-    .theme-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      pointer-events: none;
-    }
-
-    .theme-card:hover::before { opacity: 1; }
-
-    /* Per-theme accent colours */
-    .card-modern::before  { background: radial-gradient(ellipse at 0% 0%, rgba(79,142,247,0.12), transparent 60%); }
-    .card-graphic::before { background: radial-gradient(ellipse at 0% 0%, rgba(255,180,60,0.12), transparent 60%); }
-    .card-news::before    { background: radial-gradient(ellipse at 0% 0%, rgba(212,197,160,0.14), transparent 60%); }
-    .card-vscode::before  { background: radial-gradient(ellipse at 0% 0%, rgba(97,175,239,0.12), transparent 60%); }
-
-    .card-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      margin-bottom: 1.25rem;
-      flex-shrink: 0;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      margin: -20px -20px 12px;
+      backdrop-filter: blur(8px);
+      background: rgba(237, 237, 237, 0.88);
+      border-bottom: 1px solid rgba(15, 15, 15, 0.1);
     }
 
-    .card-modern .card-icon  { background: rgba(79,142,247,0.15);  color: #4f8ef7; }
-    .card-graphic .card-icon { background: rgba(255,180,60,0.15);  color: #ffb43c; }
-    .card-news .card-icon    { background: rgba(212,197,160,0.18); color: #d4c5a0; }
-    .card-vscode .card-icon  { background: rgba(97,175,239,0.15);  color: #61afef; }
-
-    .card-name {
-      font-size: 1.0625rem;
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       font-weight: 700;
-      letter-spacing: -0.01em;
-      margin-bottom: 0.4rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 13px;
     }
 
-    .card-desc {
-      font-size: 0.875rem;
-      color: var(--muted);
-      line-height: 1.55;
-      flex: 1;
-      margin-bottom: 1.5rem;
+    .brand-mark {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--ink);
+      transform: rotate(-12deg);
+      border-radius: 4px;
+      display: inline-block;
     }
 
-    .card-tags {
+    .topnav {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-bottom: 1.25rem;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    }
+
+    .chip:hover,
+    .chip:focus-visible {
+      background: var(--ink);
+      color: #fff;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .btn {
+      border: 1px solid var(--ink);
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+      outline: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--line);
+    }
+
+    .headline {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 26px;
+      align-items: center;
+      margin-top: 8px;
+      animation: rise 0.45s ease both;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      border: 1px solid #a7d7cf;
+      background: #e5f7f4;
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .headline h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 6vw, 4.2rem);
+      line-height: 0.96;
+      letter-spacing: -0.035em;
+      font-weight: 700;
+      max-width: 13ch;
+    }
+
+    .headline p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 35ch;
+      line-height: 1.45;
+    }
+
+    .hero-actions {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .terminal-card {
+      background: #070707;
+      color: #d0ffd2;
+      border: 1px solid #2d2d2d;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 250px;
+    }
+
+    .terminal-top {
+      padding: 8px 12px;
+      border-bottom: 1px solid #262626;
+      background: #161616;
+      color: #d5d5d5;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .terminal-lines {
+      margin: 0;
+      padding: 14px 14px 18px;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      min-height: 216px;
+    }
+
+    .section-title {
+      margin: 44px 0 14px;
+      font-family: "Abril Fatface", Georgia, serif;
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      font-weight: 400;
+      animation: rise 0.45s ease both;
+    }
+
+    .section-sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      max-width: 68ch;
+      line-height: 1.48;
+    }
+
+    .step-section {
+      margin-top: 12px;
+    }
+
+    .step-section[hidden] {
+      display: none;
+    }
+
+    .cards-3,
+    .cards-2,
+    .theme-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .cards-3,
+    .theme-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cards-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 15px;
+      animation: rise 0.4s ease both;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .panel p {
+      margin: 8px 0 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 14px;
+    }
+
+    .mini-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #2e2e2e;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .field,
+    .url-field {
+      width: 100%;
+      border: 1px solid #272727;
+      border-radius: 8px;
+      padding: 10px 11px;
+      background: #fff;
+      color: #0f0f0f;
+      font-size: 13px;
+      margin-bottom: 9px;
+    }
+
+    .auth-panel {
+      max-width: 620px;
+      margin: 34px auto 0;
+      text-align: center;
+      padding: 24px 20px;
+    }
+
+    .auth-panel ul {
+      text-align: left;
+      margin: 12px auto;
+      max-width: 500px;
+      color: #2b2b2b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .auth-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .theme-card {
+      background: #fff;
+      border: 1px solid #1f1f1f;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+      display: block;
+      color: inherit;
+    }
+
+    .theme-card:hover,
+    .theme-card:focus-within {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .theme-preview {
+      height: 56px;
+      border-bottom: 1px solid #1f1f1f;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .theme-body {
+      padding: 10px;
+    }
+
+    .theme-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .theme-name {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1;
+      letter-spacing: -0.03em;
     }
 
     .tag {
-      font-size: 0.6875rem;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      padding: 0.2rem 0.55rem;
+      border: 1px solid #0f0f0f;
       border-radius: 999px;
-      background: var(--surface-2);
-      color: var(--muted);
-      border: 1px solid var(--border);
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
-    .card-cta {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--accent);
+    .theme-actions {
       display: flex;
+      gap: 8px;
       align-items: center;
-      gap: 0.3rem;
+      margin-top: 10px;
+      flex-wrap: wrap;
     }
 
-    .card-cta svg { transition: transform 0.2s ease; }
-    .theme-card:hover .card-cta svg { transform: translateX(3px); }
+    .radio {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
 
-    /* ── Footer ── */
+    .deploy-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .status-line {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: #234f4a;
+      min-height: 1.2em;
+    }
+
+    .deploy-result {
+      border: 1px solid #9ecdc8;
+      background: #ebfaf7;
+      color: #12413d;
+      border-radius: 9px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .deploy-result[hidden] {
+      display: none;
+    }
+
     .footer {
-      margin-top: auto;
-      padding: 1.25rem 2rem;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      font-size: 0.8125rem;
-      color: var(--muted);
+      margin-top: 34px;
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: #3d3d3d;
+      font-size: 12px;
+      font-weight: 600;
     }
 
-    @media (max-width: 480px) {
-      .hero { padding: 3.5rem 1.25rem 2rem; }
-      .grid-wrap { padding: 2rem 1.25rem 3rem; }
-      .theme-grid { grid-template-columns: 1fr; }
+    @keyframes rise {
+      from {
+        transform: translateY(8px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .headline,
+      .deploy-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .headline h1 {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 14px 14px 48px;
+      }
+
+      .topbar {
+        margin: -14px -14px 10px;
+      }
+
+      .cards-3,
+      .cards-2,
+      .theme-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-title {
+        margin-top: 30px;
+      }
     }
   </style>
 </head>
 <body>
-  <header class="header">
-    <span class="brand-dot" aria-hidden="true"></span>
-    <span class="brand-name" id="brandName">Portfolio</span>
-  </header>
-
-  <section class="hero">
-    <p class="hero-eyebrow">Portfolio</p>
-    <h1 class="hero-title" id="heroName">Choose a Theme</h1>
-    <p class="hero-sub" id="heroSub">Select how you'd like to explore this portfolio.</p>
-  </section>
-
-  <div class="grid-wrap">
-    <p class="grid-label">Available themes</p>
-    <div class="theme-grid">
-
-      <a class="theme-card card-modern" href="./themes/modern/index.html">
-        <div class="card-icon" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><circle cx="7.5" cy="6" r="1"/><circle cx="11" cy="6" r="1"/><circle cx="14.5" cy="6" r="1"/></svg>
-        </div>
-        <div class="card-name">Modern</div>
-        <div class="card-desc">Clean, minimal dark UI with smooth animations and a contemporary feel.</div>
-        <div class="card-tags">
-          <span class="tag">Dark mode</span>
-          <span class="tag">Minimal</span>
-          <span class="tag">Animated</span>
-        </div>
-        <div class="card-cta">
-          Open
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
+  <main class="page">
+    <header class="topbar">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span id="brandName">Kinetic Terminal</span>
       </a>
+      <nav class="topnav" aria-label="Primary">
+        <a class="chip" href="#landing">How it Works</a>
+        <a class="chip" href="#import-data">Import</a>
+        <a class="chip" href="#theme-step">Themes</a>
+        <a class="chip" href="#deployment">Deployment</a>
+        <a class="chip" href="https://github.com" target="_blank" rel="noopener">GitHub Repository</a>
+      </nav>
+      <button class="btn btn-primary" id="heroStartBtn" type="button">Get Started</button>
+    </header>
 
-      <a class="theme-card card-graphic" href="./themes/graphic/index.html">
-        <div class="card-icon" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <section id="landing" class="headline" aria-label="Landing Page">
+      <div>
+        <span class="eyebrow">Portfolio OS</span>
+        <h1 id="heroName">Build and Deploy Your Portfolio in One Click</h1>
+        <p id="heroSub">The fastest, open-source way to showcase your skills. Add your profile from LinkedIn or rxresu.me JSON, choose a theme, and publish live in minutes.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="heroConnectBtn" type="button">Get Started • It is Free</button>
+          <a class="btn" href="https://github.com" target="_blank" rel="noopener">Fork on GitHub</a>
         </div>
-        <div class="card-name">Graphic</div>
-        <div class="card-desc">Bold poster-style design with strong typography and a graphic design aesthetic.</div>
-        <div class="card-tags">
-          <span class="tag">Bold</span>
-          <span class="tag">Poster</span>
-          <span class="tag">Two-column</span>
-        </div>
-        <div class="card-cta">
-          Open
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-      </a>
+      </div>
+      <article class="terminal-card" aria-label="Deployment terminal preview">
+        <div class="terminal-top">kinetic-terminal-path</div>
+        <pre class="terminal-lines" id="terminalLog">Deploying resume repo...
+Scaffolding static files
+Pushing build artifacts
+Success: theme selection complete
+Success: oauth token cached
+Success: pages site created
+Success: domain mapped
+Success: deployment live</pre>
+      </article>
+    </section>
 
-      <a class="theme-card card-news" href="./themes/newspaper/index.html">
-        <div class="card-icon" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>
-        </div>
-        <div class="card-name">Newspaper</div>
-        <div class="card-desc">Classic editorial layout with serif typography — like a broadsheet front page.</div>
-        <div class="card-tags">
-          <span class="tag">Editorial</span>
-          <span class="tag">Serif</span>
-          <span class="tag">Classic</span>
-        </div>
-        <div class="card-cta">
-          Open
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-      </a>
+    <section id="auth" class="step-section">
+      <h2 class="section-title">Step 1: Connect Your GitHub Account</h2>
+      <p class="section-sub">To deploy your portfolio, we need permission to create a repository and push the initial codebase. We never access private repos.</p>
+      <article class="panel auth-panel">
+        <h3 id="authStatusTitle">Authorize Deployment Access</h3>
+        <ul>
+          <li>Repository Creation: automated setup of a new public repository for your portfolio.</li>
+          <li>Initial Deployment: pushes selected theme files to the freshly created repository.</li>
+          <li>No Private Access: scoped token only for deployment workflow actions.</li>
+        </ul>
+        <a class="btn btn-primary" id="ghConnectBtn" href="/auth/github/start?returnTo=/">Authorize GitHub</a>
+        <button class="btn btn-ghost" id="ghDisconnectBtn" type="button" hidden>Disconnect</button>
+        <p class="auth-note" id="ghStatus">GitHub App not connected</p>
+      </article>
+    </section>
 
-      <a class="theme-card card-vscode" href="./themes/vscode/index.html">
-        <div class="card-icon" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        </div>
-        <div class="card-name">VS Code</div>
-        <div class="card-desc">IDE-style layout with syntax highlighting — for developers who think in code.</div>
-        <div class="card-tags">
-          <span class="tag">IDE</span>
-          <span class="tag">Dracula</span>
-          <span class="tag">Syntax</span>
-        </div>
-        <div class="card-cta">
-          Open
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-      </a>
+    <section id="import-data" class="step-section" hidden>
+      <h2 class="section-title">Step 2: Import Your Data</h2>
+      <p class="section-sub">Use your existing profile data or your current resume JSON, then choose a visual style before deployment.</p>
+      <div class="cards-3">
+        <article class="panel">
+          <h3>LinkedIn Profile URL</h3>
+          <p>Import your profile information instantly to speed up setup.</p>
+          <input class="field" type="url" placeholder="https://linkedin.com/in/your-profile" />
+          <button class="btn btn-primary" type="button" data-complete-import>Verify URL</button>
+        </article>
+        <article class="panel">
+          <h3>rxresu.me JSON</h3>
+          <p>Upload your exported resume schema to keep your details structured.</p>
+          <input class="field" type="file" accept="application/json" />
+          <button class="btn" type="button" data-complete-import>Validate Schema</button>
+        </article>
+        <article class="panel">
+          <h3>Manual Entry</h3>
+          <p>Prefer full control? Add sections manually through the editor flow.</p>
+          <button class="btn btn-primary" type="button" data-complete-import>Open Editor</button>
+        </article>
+      </div>
+    </section>
 
-    </div>
-  </div>
+    <section id="theme-step" class="step-section" hidden>
+      <h2 class="section-title">Step 3: Choose a Theme</h2>
+      <p class="section-sub">Pick one theme to deploy. You can still open any theme preview directly.</p>
+      <div class="theme-grid" role="radiogroup" aria-label="Theme selection">
+        <article class="theme-card">
+          <div class="theme-preview" style="background: linear-gradient(120deg, #073449, #1896ac);"></div>
+          <div class="theme-body">
+            <div class="theme-top">
+              <h3 class="theme-name">Modern</h3>
+              <span class="tag">Featured</span>
+            </div>
+            <p>Clean visual hierarchy with contemporary spacing and typography.</p>
+            <div class="theme-actions">
+              <label class="radio"><input type="radio" name="theme" value="modern" checked /> Select</label>
+              <a class="btn" href="./themes/modern/index.html">Open</a>
+            </div>
+          </div>
+        </article>
 
-  <footer class="footer">
-    <span id="footerName"></span>
-  </footer>
+        <article class="theme-card">
+          <div class="theme-preview" style="background: linear-gradient(120deg, #282828, #6b6b6b);"></div>
+          <div class="theme-body">
+            <div class="theme-top">
+              <h3 class="theme-name">Newspaper</h3>
+              <span class="tag">Classic</span>
+            </div>
+            <p>Editorial style with serif-heavy typographic rhythm and clear sections.</p>
+            <div class="theme-actions">
+              <label class="radio"><input type="radio" name="theme" value="newspaper" /> Select</label>
+              <a class="btn" href="./themes/newspaper/index.html">Open</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="theme-card">
+          <div class="theme-preview" style="background: linear-gradient(120deg, #4a2189, #975dfe);"></div>
+          <div class="theme-body">
+            <div class="theme-top">
+              <h3 class="theme-name">Graphic</h3>
+              <span class="tag">Bold</span>
+            </div>
+            <p>Bold, design-forward layout for visually expressive project showcases.</p>
+            <div class="theme-actions">
+              <label class="radio"><input type="radio" name="theme" value="graphic" /> Select</label>
+              <a class="btn" href="./themes/graphic/index.html">Open</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="theme-card">
+          <div class="theme-preview" style="background: linear-gradient(120deg, #0d1525, #134d96);"></div>
+          <div class="theme-body">
+            <div class="theme-top">
+              <h3 class="theme-name">VS Code</h3>
+              <span class="tag">Code</span>
+            </div>
+            <p>A monospace workspace feel for hands-on developer portfolios.</p>
+            <div class="theme-actions">
+              <label class="radio"><input type="radio" name="theme" value="vscode" /> Select</label>
+              <a class="btn" href="./themes/vscode/index.html">Open</a>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div style="margin-top: 14px;">
+        <button class="btn btn-primary" id="themeContinueBtn" type="button">Continue to Deployment</button>
+      </div>
+    </section>
+
+    <section id="deployment" class="step-section" hidden>
+      <h2 class="section-title">Step 4: Deploy Your Portfolio</h2>
+      <p class="section-sub">Choose your repository name and deploy the selected theme to GitHub Pages in one action.</p>
+      <div class="deploy-layout">
+        <article class="panel">
+          <span class="eyebrow">Deployment Successful</span>
+          <h3>Publish in one click</h3>
+          <p>Deploy creates a new repository and configures your Pages URL automatically.</p>
+          <input class="url-field" id="repositoryName" type="text" value="portfolio-modern" aria-label="Repository name" />
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+            <button class="btn btn-primary" id="deployButton" type="button">Deploy Selected Theme</button>
+            <button class="btn" id="copyLinkBtn" type="button" disabled>Copy Link</button>
+          </div>
+          <p class="status-line" id="deployStatusLine">Waiting for authorization.</p>
+          <div class="deploy-result" id="deployResult" hidden>
+            Live URL: <a id="deployPagesUrl" href="#" target="_blank" rel="noopener">Open live site</a>
+          </div>
+          <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px;">
+            <a class="chip" id="manageSiteLink" href="#">Manage Site</a>
+            <a class="chip" id="viewRepoLink" href="#">View Repo</a>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>Engineered for Performance</h3>
+          <p>Optimized around clean HTML, responsive CSS, and minimal runtime JavaScript.</p>
+          <ul class="mini-list">
+            <li>Built on rxresu.me schema and your existing resume data.</li>
+            <li>Deploy pipeline writes static assets for fast global delivery.</li>
+            <li>Themes are lightweight and easy to fork or extend.</li>
+          </ul>
+          <div style="margin-top: 14px; border: 1px solid #111; border-radius: 12px; padding: 12px; background: #fafafa;">
+            <strong id="footerName">Kinetic Terminal</strong>
+            <p style="margin: 8px 0 0; font-size: 12px; color: #555;">Join the core community and ship your portfolio faster.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>Documentation · Privacy · Support</span>
+      <span id="footerTag">Built for high-performance developer portfolios.</span>
+    </footer>
+  </main>
 
   <script>
     (async function () {
-      try {
-        const res = await fetch('/resume/Reactive Resume.json');
-        if (!res.ok) return;
-        const data = await res.json();
-        const name = data?.basics?.name || '';
-        const headline = data?.basics?.headline || '';
-        if (name) {
-          document.getElementById('brandName').textContent = name;
-          document.getElementById('heroName').textContent = name;
-          document.getElementById('footerName').textContent = name + (headline ? ' · ' + headline : '');
-          document.title = name + ' · Portfolio';
+      const ghStatus = document.getElementById('ghStatus');
+      const ghConnectBtn = document.getElementById('ghConnectBtn');
+      const heroConnectBtn = document.getElementById('heroConnectBtn');
+      const ghDisconnectBtn = document.getElementById('ghDisconnectBtn');
+      const deployButton = document.getElementById('deployButton');
+      const deployStatusLine = document.getElementById('deployStatusLine');
+      const deployResult = document.getElementById('deployResult');
+      const deployPagesUrl = document.getElementById('deployPagesUrl');
+      const repositoryNameInput = document.getElementById('repositoryName');
+      const copyLinkBtn = document.getElementById('copyLinkBtn');
+      const viewRepoLink = document.getElementById('viewRepoLink');
+      const manageSiteLink = document.getElementById('manageSiteLink');
+      const authStatusTitle = document.getElementById('authStatusTitle');
+      const heroStartBtn = document.getElementById('heroStartBtn');
+      const importCompleteButtons = Array.from(document.querySelectorAll('[data-complete-import]'));
+      const themeContinueBtn = document.getElementById('themeContinueBtn');
+      const themeInputs = Array.from(document.querySelectorAll('input[name="theme"]'));
+      const authSection = document.getElementById('auth');
+      const importSection = document.getElementById('import-data');
+      const themeSection = document.getElementById('theme-step');
+      const deploymentSection = document.getElementById('deployment');
+
+      const stepSections = [authSection, importSection, themeSection, deploymentSection];
+      let currentStep = 1;
+      let isAuthed = false;
+
+      function selectedTheme() {
+        const selected = themeInputs.find((input) => input.checked);
+        return selected ? selected.value : 'modern';
+      }
+
+      function syncRepoNameFromTheme() {
+        if (!repositoryNameInput) return;
+        repositoryNameInput.value = 'portfolio-' + selectedTheme();
+      }
+
+      function setDeployEnabled(enabled) {
+        deployButton.disabled = !enabled;
+        deployButton.title = enabled ? '' : 'Complete previous steps first';
+      }
+
+      function setStatus(text) {
+        ghStatus.textContent = text;
+        deployStatusLine.textContent = text;
+      }
+
+      function hideDeployResult() {
+        deployResult.hidden = true;
+        deployPagesUrl.href = '#';
+        deployPagesUrl.textContent = 'Open live site';
+        copyLinkBtn.disabled = true;
+        viewRepoLink.href = '#';
+        manageSiteLink.href = '#';
+      }
+
+      function showDeployResult(pagesUrl, repositoryUrl) {
+        deployPagesUrl.href = pagesUrl;
+        deployPagesUrl.textContent = pagesUrl;
+        deployResult.hidden = false;
+        copyLinkBtn.disabled = false;
+        viewRepoLink.href = repositoryUrl;
+        manageSiteLink.href = pagesUrl;
+      }
+
+      function setConnectTargets(url, label) {
+        ghConnectBtn.href = url;
+        heroConnectBtn.setAttribute('data-href', url);
+        heroConnectBtn.textContent = label;
+      }
+
+      function setStep(stepNumber) {
+        currentStep = Math.max(1, Math.min(stepNumber, stepSections.length));
+        stepSections.forEach((section, index) => {
+          section.hidden = (index + 1) !== currentStep;
+        });
+        stepSections[currentStep - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setDeployEnabled(isAuthed && currentStep === 4);
+      }
+
+      themeInputs.forEach((input) => {
+        input.addEventListener('change', syncRepoNameFromTheme);
+      });
+
+      importCompleteButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          setStep(3);
+        });
+      });
+
+      themeContinueBtn.addEventListener('click', () => {
+        setStep(4);
+      });
+
+      heroStartBtn.addEventListener('click', () => {
+        setStep(1);
+      });
+
+      heroConnectBtn.addEventListener('click', () => {
+        const href = heroConnectBtn.getAttribute('data-href') || '/auth/github/start?returnTo=/';
+        window.location.href = href;
+      });
+
+      copyLinkBtn.addEventListener('click', async () => {
+        if (!deployPagesUrl.href || deployPagesUrl.href === '#') return;
+        try {
+          await navigator.clipboard.writeText(deployPagesUrl.href);
+          copyLinkBtn.textContent = 'Copied';
+          setTimeout(() => {
+            copyLinkBtn.textContent = 'Copy Link';
+          }, 1200);
+        } catch (_) {
+          window.alert('Unable to copy URL.');
         }
-        if (headline) {
-          document.getElementById('heroSub').textContent = headline + ' — select a theme to explore.';
+      });
+
+      async function updateAuthStatus() {
+        try {
+          const response = await fetch('/api/github/me', { credentials: 'same-origin' });
+          if (!response.ok) {
+            isAuthed = false;
+            setStatus('GitHub App not connected');
+            authStatusTitle.textContent = 'Authorize Deployment Access';
+            ghConnectBtn.hidden = false;
+            ghDisconnectBtn.hidden = true;
+            setConnectTargets('/auth/github/start?returnTo=/', 'Authorize GitHub');
+            setStep(1);
+            return null;
+          }
+
+          const payload = await response.json();
+          const login = payload && payload.user && payload.user.login;
+          const appInstalled = Boolean(payload && payload.githubApp && payload.githubApp.installed);
+          if (!login) {
+            isAuthed = false;
+            setStatus('GitHub App not connected');
+            ghConnectBtn.hidden = false;
+            ghDisconnectBtn.hidden = true;
+            setConnectTargets('/auth/github/start?returnTo=/', 'Authorize GitHub');
+            setStep(1);
+            return null;
+          }
+
+          if (!appInstalled) {
+            isAuthed = false;
+            const installUrl = payload && payload.githubApp && payload.githubApp.installUrl;
+            setStatus(installUrl ? 'Install GitHub App to continue' : 'GitHub App installation required');
+            authStatusTitle.textContent = 'Install GitHub App';
+            ghConnectBtn.hidden = false;
+            ghDisconnectBtn.hidden = false;
+            setConnectTargets(installUrl || '/auth/github/start?returnTo=/', installUrl ? 'Install GitHub App' : 'Authorize GitHub');
+            setStep(1);
+            return payload.user;
+          }
+
+          isAuthed = true;
+          setStatus('Connected as @' + login);
+          authStatusTitle.textContent = 'Connected and Ready';
+          ghConnectBtn.hidden = true;
+          ghDisconnectBtn.hidden = false;
+          setConnectTargets('/auth/github/start?returnTo=/', 'Connected');
+          if (currentStep === 1) setStep(2);
+          setDeployEnabled(currentStep === 4);
+          return payload.user;
+        } catch (error) {
+          isAuthed = false;
+          console.error(error);
+          setStatus('GitHub App status unavailable');
+          setStep(1);
+          return null;
         }
-      } catch (_) { /* silent — static fallback text is fine */ }
+      }
+
+      async function deploySelectedTheme() {
+        if (!isAuthed || currentStep !== 4) {
+          window.alert('Complete previous steps first.');
+          return;
+        }
+
+        const theme = selectedTheme();
+        const repositoryName = String(repositoryNameInput.value || '').trim();
+        if (!repositoryName) {
+          window.alert('Please enter a repository name.');
+          repositoryNameInput.focus();
+          return;
+        }
+
+        setStatus('Deploying ' + theme + '...');
+        setDeployEnabled(false);
+        hideDeployResult();
+
+        try {
+          const response = await fetch('/api/github/deploy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ theme: theme, repositoryName: repositoryName })
+          });
+
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error((payload && payload.error) || 'Deployment failed');
+          }
+
+          setStatus('Deployed to ' + payload.pagesUrl);
+          showDeployResult(payload.pagesUrl, payload.repositoryUrl);
+        } catch (error) {
+          console.error(error);
+          setStatus('Deploy failed: ' + error.message);
+          hideDeployResult();
+          window.alert('Deploy failed: ' + error.message);
+        } finally {
+          await updateAuthStatus();
+          setDeployEnabled(isAuthed && currentStep === 4);
+        }
+      }
+
+      deployButton.addEventListener('click', deploySelectedTheme);
+
+      ghDisconnectBtn.addEventListener('click', async () => {
+        try {
+          await fetch('/api/github/logout', { method: 'POST', credentials: 'same-origin' });
+        } finally {
+          await updateAuthStatus();
+          hideDeployResult();
+          setStep(1);
+        }
+      });
+
+      if (window.location.search.indexOf('connected=1') !== -1) {
+        setStatus('GitHub App connected. Continue with step 2.');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      syncRepoNameFromTheme();
+      hideDeployResult();
+      setStep(1);
+      await updateAuthStatus();
     })();
   </script>
 </body>
