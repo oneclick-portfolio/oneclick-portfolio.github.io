@@ -3,3 +3,4 @@ node_modules/*
 .env
 .env.local
 stitch_exports/*
+.github/*.md

@@ -4,6 +4,7 @@ const express = require('express');
 const crypto = require('crypto');
 const fs = require('fs/promises');
 const path = require('path');
+const Ajv2020 = require('ajv/dist/2020').default;
 
 const app = express();
 const ROOT_DIR = __dirname;
@@ -41,6 +42,57 @@ const THEME_FILES = {
 };
 
 app.use(express.json({ limit: '1mb' }));
+
+let resumeValidatorPromise = null;
+
+function formatAjvErrors(errors) {
+  if (!Array.isArray(errors)) return [];
+  return errors.slice(0, 20).map((error) => {
+    const pointer = error.instancePath || '/';
+    const detail = error.message || 'invalid value';
+    return `${pointer} ${detail}`;
+  });
+}
+
+async function getResumeValidator() {
+  if (resumeValidatorPromise) return resumeValidatorPromise;
+
+  resumeValidatorPromise = (async () => {
+    const schemaPath = path.join(ROOT_DIR, 'tests', 'rxresume.schema.json');
+    let schema;
+    try {
+      schema = JSON.parse(await fs.readFile(schemaPath, 'utf8'));
+    } catch (_error) {
+      const response = await fetch('https://rxresu.me/schema.json');
+      if (!response.ok) {
+        throw new Error(`Unable to load resume schema: HTTP ${response.status}`);
+      }
+      schema = await response.json();
+    }
+
+    const ajv = new Ajv2020({ allErrors: true, strict: false });
+    return ajv.compile(schema);
+  })();
+
+  return resumeValidatorPromise;
+}
+
+async function validateResumeData(resumeData) {
+  if (!resumeData || typeof resumeData !== 'object' || Array.isArray(resumeData)) {
+    return {
+      valid: false,
+      errors: ['/ must be a JSON object']
+    };
+  }
+
+  const validate = await getResumeValidator();
+  const isValid = validate(resumeData);
+
+  return {
+    valid: Boolean(isValid),
+    errors: formatAjvErrors(validate.errors)
+  };
+}
 
 function parseCookies(req) {
   const header = req.headers.cookie;
@@ -190,7 +242,7 @@ function transformThemeIndex(indexHtml) {
     .replace('../../src/rxresume.js', './src/rxresume.js');
 }
 
-async function buildThemeBundle(theme) {
+async function buildThemeBundle(theme, resumeData) {
   const selection = THEME_FILES[theme];
 
   const [indexHtml, appJs, styleCss, configJs, rxresumeJs, resumeJson, faviconSvg, faviconIco] = await Promise.all([
@@ -199,7 +251,7 @@ async function buildThemeBundle(theme) {
     readTextFile(selection.style),
     readTextFile('config.js'),
     readTextFile('src/rxresume.js'),
-    readTextFile('resume/Reactive Resume.json'),
+    resumeData ? Promise.resolve(`${JSON.stringify(resumeData, null, 2)}\n`) : readTextFile('resume/Reactive Resume.json'),
     readTextFile('favicon.svg'),
     readBinaryFile('favicon.ico')
   ]);
@@ -315,6 +367,7 @@ async function createRepositoryAndDeployTheme(token, userLogin, params) {
   const theme = params.theme;
   const repositoryName = normalizeRepoName(params.repositoryName);
   const privateRepo = Boolean(params.privateRepo);
+  const resumeData = params.resumeData;
 
   if (!validateTheme(theme)) {
     throw new Error('Invalid theme selection.');
@@ -361,7 +414,15 @@ async function createRepositoryAndDeployTheme(token, userLogin, params) {
   }
 
   const branch = repo.default_branch || 'main';
-  const files = await buildThemeBundle(theme);
+  if (resumeData !== undefined) {
+    const validationResult = await validateResumeData(resumeData);
+    if (!validationResult.valid) {
+      const firstErrors = validationResult.errors.slice(0, 3).join('; ');
+      throw new Error(`Uploaded resume JSON is invalid: ${firstErrors || 'schema validation failed'}`);
+    }
+  }
+
+  const files = await buildThemeBundle(theme, resumeData);
 
   for (const file of files) {
     await uploadFileToRepo(token, userLogin, repositoryName, branch, file.path, file.content, file.encoding);
@@ -500,6 +561,24 @@ app.get('/api/github/me', async (req, res) => {
 app.post('/api/github/logout', (req, res) => {
   clearCookie(res, OAUTH_TOKEN_COOKIE);
   res.status(204).end();
+});
+
+app.post('/api/resume/validate', async (req, res) => {
+  try {
+    const resumeData = req.body && req.body.resumeData;
+    const validationResult = await validateResumeData(resumeData);
+    if (!validationResult.valid) {
+      res.status(400).json(validationResult);
+      return;
+    }
+
+    res.json({ valid: true, errors: [] });
+  } catch (error) {
+    res.status(500).json({
+      valid: false,
+      errors: [error.message || 'Unable to validate resume JSON']
+    });
+  }
 });
 
 app.post('/api/github/deploy', async (req, res) => {

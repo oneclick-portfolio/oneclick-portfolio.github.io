@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 async function run() {
-  const { default: Ajv } = await import('ajv');
+  const { default: Ajv2020 } = await import('ajv/dist/2020.js');
 
-  const ajv = new Ajv();
+  const ajv = new Ajv2020({ allErrors: true, strict: false });
   const schema = await fetch('https://rxresu.me/schema.json').then((r) => r.json());
 
   const validate = ajv.compile(schema);
