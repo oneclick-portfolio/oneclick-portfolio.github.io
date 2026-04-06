@@ -597,6 +597,11 @@ Success: deployment live</pre>
         <a class="btn btn-primary" id="ghConnectBtn" href="#">Authorize GitHub</a>
         <button class="btn btn-ghost" id="ghDisconnectBtn" type="button" hidden>Disconnect</button>
         <p class="auth-note" id="ghStatus">GitHub App not connected</p>
+        <ul class="mini-list" style="margin-top: 10px;">
+          <li>When prompted during app install, choose <strong>All repositories</strong> for easiest setup.</li>
+          <li>If you choose <strong>Only select repositories</strong>, include the repo you want to deploy to.</li>
+          <li>You can change repository access later from GitHub App installation settings.</li>
+        </ul>
       </article>
     </section>
 
@@ -707,6 +712,7 @@ Success: deployment live</pre>
             <button class="btn" id="copyLinkBtn" type="button" disabled>Copy Link</button>
           </div>
           <p class="status-line" id="deployStatusLine">Waiting for authorization.</p>
+          <p class="auth-note" style="margin-top: 6px;">Deployment can fail if your GitHub App installation does not include this repository.</p>
           <div class="deploy-result" id="deployResult" hidden>
             Live URL: <a id="deployPagesUrl" href="#" target="_blank" rel="noopener">Open live site</a>
           </div>
@@ -988,7 +994,12 @@ Success: deployment live</pre>
           }
 
           isAuthed = true;
-          setStatus('Connected as @' + login);
+          const repoSelection = payload && payload.githubApp && payload.githubApp.repositorySelection;
+          if (repoSelection === 'selected') {
+            setStatus('Connected as @' + login + ' — App installed for select repos only. New repo creation may fail.');
+          } else {
+            setStatus('Connected as @' + login);
+          }
           authStatusTitle.textContent = 'Connected and Ready';
           ghConnectBtn.hidden = true;
           ghDisconnectBtn.hidden = false;
