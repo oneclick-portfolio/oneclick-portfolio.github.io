@@ -760,6 +760,7 @@
   <script>
     (async function () {
       const API_BASE = (window.CONFIG && window.CONFIG.apiBase) ? window.CONFIG.apiBase : 'https://op-bot-mauve.vercel.app';
+      const THEME_REPO_LINKS = (window.CONFIG && window.CONFIG.deploy && window.CONFIG.deploy.themeRepoLinks) || {};
       const REPO_URL = 'https://github.com/oneclick-portfolio/op.github.io';
       const ghStatus = document.getElementById('ghStatus');
       const ghConnectBtn = document.getElementById('ghConnectBtn');
@@ -1031,6 +1032,11 @@
           repositoryNameInput.focus();
           return;
         }
+        const themeRepoLink = String(THEME_REPO_LINKS[theme] || '').trim();
+        if (!themeRepoLink) {
+          window.alert('Deployment is not configured: no repo link found for theme "' + theme + '" in deploy.themeRepoLinks in config.js.');
+          return;
+        }
 
         setStatus('Deploying ' + theme + '...');
         setDeployEnabled(false);
@@ -1044,7 +1050,8 @@
             body: JSON.stringify({
               theme: theme,
               repositoryName: repositoryName,
-              resumeData: validatedResumeData
+              resumeData: validatedResumeData,
+              themeRepoLink: themeRepoLink
             })
           });
 

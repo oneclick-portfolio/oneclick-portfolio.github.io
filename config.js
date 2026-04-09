@@ -1,6 +1,14 @@
 const CONFIG = {
-  apiBase: 'https://op-bot-mauve.vercel.app',
-  // apiBase: 'http://localhost:8080',
+  // apiBase: 'https://op-bot-mauve.vercel.app',
+  apiBase: 'http://localhost:8080',
+  deploy: {
+    themeRepoLinks: {
+      modern:    'https://github.com/oneclick-portfolio/awesome-github-portfolio/tree/main/themes/modern',
+      newspaper: 'https://github.com/oneclick-portfolio/awesome-github-portfolio/tree/main/themes/newspaper',
+      graphic:   'https://github.com/oneclick-portfolio/awesome-github-portfolio/tree/main/themes/graphic',
+      vscode:    'https://github.com/oneclick-portfolio/awesome-github-portfolio/tree/main/themes/vscode'
+    }
+  },
   paths: {
     resumeData: '/resume/Reactive Resume.json',
     profileArt: '/src/profile.html',
