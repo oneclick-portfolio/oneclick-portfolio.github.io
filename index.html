@@ -865,6 +865,48 @@
       min-height: 1.2em;
     }
 
+    .deploy-progress {
+      margin-top: 10px;
+      padding: 12px;
+      background: var(--surface-container-low);
+      border-radius: 12px;
+      border: 1px solid var(--outline-variant);
+    }
+
+    .deploy-progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--surface-container-high);
+      overflow: hidden;
+    }
+
+    .deploy-progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--primary-container));
+      transition: width 0.25s ease;
+    }
+
+    .deploy-progress-meta {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--on-surface-variant);
+    }
+
+    .deploy-progress-stage {
+      margin-top: 8px;
+      font-size: 12px;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--on-surface-variant);
+    }
+
     .deploy-result {
       background: var(--surface-container-low);
       border-radius: 1rem;
@@ -1331,13 +1373,6 @@
       <div>
         <h1 id="heroName">Build and deploy your portfolio in one <span class="cursor-target">click<img src="cursor.png"
               class="pixel-cursor" alt=""></span></h1>
-        <p id="heroSub">Import your rxresu.me JSON, pick a theme, and publish to GitHub Pages.</p>
-        <div class="hero-actions">
-
-          <a class="btn" href="https://github.com/oneclick-portfolio/oneclick-portfolio.github.io" target="_blank"
-            rel="noopener">
-            GitHub</a>
-        </div>
       </div>
 
     </section>
@@ -1528,6 +1563,16 @@
             <button class="btn" id="copyLinkBtn" type="button" disabled>Copy Link</button>
           </div>
           <p class="status-line" id="deployStatusLine">Waiting for authorization.</p>
+          <div class="deploy-progress" id="deployProgress" hidden>
+            <div class="deploy-progress-track" role="progressbar" aria-label="Deployment progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="deployProgressTrack">
+              <div class="deploy-progress-bar" id="deployProgressBar"></div>
+            </div>
+            <div class="deploy-progress-meta">
+              <span id="deployProgressPercent">0%</span>
+              <span id="deployProgressEta">Estimating time...</span>
+            </div>
+            <div class="deploy-progress-stage" id="deployProgressStage">Preparing deployment…</div>
+          </div>
           <p class="auth-note" style="margin-top: 6px;">If deployment fails, check your GitHub App repository
             permissions.</p>
           <div class="deploy-result" id="deployResult" hidden>
@@ -1887,6 +1932,12 @@
       const deployStatusLine = document.getElementById('deployStatusLine');
       const deployResult = document.getElementById('deployResult');
       const deployPagesUrl = document.getElementById('deployPagesUrl');
+      const deployProgress = document.getElementById('deployProgress');
+      const deployProgressTrack = document.getElementById('deployProgressTrack');
+      const deployProgressBar = document.getElementById('deployProgressBar');
+      const deployProgressPercent = document.getElementById('deployProgressPercent');
+      const deployProgressEta = document.getElementById('deployProgressEta');
+      const deployProgressStage = document.getElementById('deployProgressStage');
       const repositoryNameInput = document.getElementById('repositoryName');
       const copyLinkBtn = document.getElementById('copyLinkBtn');
       const viewRepoLink = document.getElementById('viewRepoLink');
@@ -1915,6 +1966,19 @@
       const topbarGetStartedBtn = document.getElementById('topbarGetStartedBtn');
       const topbarHowItWorksBtn = document.getElementById('topbarHowItWorksBtn');
       const topbarThemesBtn = document.getElementById('topbarThemesBtn');
+
+      const DEPLOY_REVEAL_SECONDS = Number(((window.CONFIG || {}).deploy || {}).progressRevealSeconds) > 0
+        ? Number(((window.CONFIG || {}).deploy || {}).progressRevealSeconds)
+        : 20;
+      const DEPLOY_PING_INTERVAL_MS = Number(((window.CONFIG || {}).deploy || {}).publishPingIntervalMs) > 0
+        ? Number(((window.CONFIG || {}).deploy || {}).publishPingIntervalMs)
+        : 3000;
+      const DEPLOY_PING_TIMEOUT_MS = Number(((window.CONFIG || {}).deploy || {}).publishPingTimeoutMs) > 0
+        ? Number(((window.CONFIG || {}).deploy || {}).publishPingTimeoutMs)
+        : 180000;
+
+      let deployProgressTimer = null;
+      let deployProgressStartedAt = 0;
 
       if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
@@ -1992,6 +2056,161 @@
         copyLinkBtn.disabled = true;
         viewRepoLink.href = '#';
         manageSiteLink.href = '#';
+      }
+
+      function formatEta(seconds) {
+        if (seconds <= 0) return 'Almost done';
+        if (seconds < 60) return '~' + seconds + 's remaining';
+        const minutes = Math.floor(seconds / 60);
+        const remainder = seconds % 60;
+        return '~' + minutes + 'm ' + remainder + 's remaining';
+      }
+
+      function setDeployProgressValue(value) {
+        const clamped = Math.max(0, Math.min(100, Math.round(value)));
+        if (deployProgressBar) {
+          deployProgressBar.style.width = clamped + '%';
+        }
+        if (deployProgressPercent) {
+          deployProgressPercent.textContent = clamped + '%';
+        }
+        if (deployProgressTrack) {
+          deployProgressTrack.setAttribute('aria-valuenow', String(clamped));
+        }
+      }
+
+      function clearDeployProgressTimer() {
+        if (deployProgressTimer) {
+          window.clearInterval(deployProgressTimer);
+          deployProgressTimer = null;
+        }
+      }
+
+      function startDeployProgress(totalSeconds) {
+        clearDeployProgressTimer();
+        deployProgressStartedAt = Date.now();
+        setDeployProgressValue(0);
+        if (deployProgressEta) deployProgressEta.textContent = formatEta(totalSeconds);
+        if (deployProgressStage) deployProgressStage.textContent = 'Creating repository and pushing files…';
+        if (deployProgress) deployProgress.hidden = false;
+
+        deployProgressTimer = window.setInterval(() => {
+          const elapsed = (Date.now() - deployProgressStartedAt) / 1000;
+          const ratio = totalSeconds > 0 ? Math.min(1, elapsed / totalSeconds) : 1;
+          const progress = Math.min(95, ratio * 95);
+          setDeployProgressValue(progress);
+
+          const remaining = Math.max(0, Math.ceil(totalSeconds - elapsed));
+          if (deployProgressEta) deployProgressEta.textContent = formatEta(remaining);
+
+          if (ratio >= 1) {
+            clearDeployProgressTimer();
+            if (deployProgressEta) deployProgressEta.textContent = 'Finalizing publish…';
+          }
+        }, 200);
+      }
+
+      function completeDeployProgress() {
+        clearDeployProgressTimer();
+        setDeployProgressValue(100);
+        if (deployProgressEta) deployProgressEta.textContent = 'Ready';
+        if (deployProgressStage) deployProgressStage.textContent = 'Deployment published.';
+      }
+
+      function resetDeployProgress() {
+        clearDeployProgressTimer();
+        deployProgressStartedAt = 0;
+        setDeployProgressValue(0);
+        if (deployProgressEta) deployProgressEta.textContent = 'Estimating time...';
+        if (deployProgressStage) deployProgressStage.textContent = 'Preparing deployment…';
+        if (deployProgress) deployProgress.hidden = true;
+      }
+
+      function wait(ms) {
+        return new Promise((resolve) => window.setTimeout(resolve, ms));
+      }
+
+      function normalizePagesUrl(pagesUrl) {
+        return String(pagesUrl || '').replace(/\/+$/, '') + '/';
+      }
+
+      function probeScriptUrl(pagesUrl) {
+        return normalizePagesUrl(pagesUrl) + 'oneclick-ready.js';
+      }
+
+      function pingLiveSiteOnce(pagesUrl, timeoutMs) {
+        const probeUrl = probeScriptUrl(pagesUrl);
+        return new Promise((resolve) => {
+          const script = document.createElement('script');
+          let settled = false;
+
+          const finish = (ok) => {
+            if (settled) return;
+            settled = true;
+            script.onerror = null;
+            script.onload = null;
+            if (script.parentNode) {
+              script.parentNode.removeChild(script);
+            }
+            resolve(ok);
+          };
+
+          const timer = window.setTimeout(() => {
+            finish(false);
+          }, timeoutMs);
+
+          script.async = true;
+          script.onload = () => {
+            window.clearTimeout(timer);
+            finish(true);
+          };
+          script.onerror = () => {
+            window.clearTimeout(timer);
+            finish(false);
+          };
+          script.src = probeUrl + '?t=' + Date.now();
+
+          document.head.appendChild(script);
+        });
+      }
+
+      async function waitForLiveSite(pagesUrl, timeoutMs, intervalMs) {
+        const startedAt = Date.now();
+        let attempts = 0;
+
+        while ((Date.now() - startedAt) < timeoutMs) {
+          attempts += 1;
+
+          const elapsedMs = Date.now() - startedAt;
+          const remainingMs = Math.max(0, timeoutMs - elapsedMs);
+          const ratio = timeoutMs > 0 ? Math.min(1, elapsedMs / timeoutMs) : 1;
+          const verificationProgress = 60 + (ratio * 35);
+          setDeployProgressValue(verificationProgress);
+
+          if (deployProgressStage) {
+            deployProgressStage.textContent = 'Deployment complete. Checking if website is live (attempt ' + attempts + ')…';
+          }
+          if (deployProgressEta) {
+            deployProgressEta.textContent = formatEta(Math.ceil(remainingMs / 1000));
+          }
+
+          const isLive = await pingLiveSiteOnce(pagesUrl, Math.min(10000, intervalMs));
+          if (isLive) {
+            return {
+              live: true,
+              elapsedMs: Date.now() - startedAt,
+              attempts: attempts,
+            };
+          }
+
+          await wait(intervalMs);
+        }
+
+        return {
+          live: false,
+          elapsedMs: Date.now() - startedAt,
+          attempts: attempts,
+        };
       }
 
       function showDeployResult(pagesUrl, repositoryUrl) {
@@ -2423,6 +2642,7 @@
         setStatus('Deploying ' + theme + '...');
         setDeployEnabled(false);
         hideDeployResult();
+        startDeployProgress(DEPLOY_REVEAL_SECONDS);
 
         try {
           const response = await apiFetch('/api/github/deploy', {
@@ -2441,16 +2661,31 @@
             throw new Error(getApiErrorMessage(payload, 'Deployment failed'));
           }
 
+          clearDeployProgressTimer();
+          setDeployProgressValue(Math.max(60, Number(deployProgressTrack.getAttribute('aria-valuenow') || '0')));
+          setStatus('Deployment completed. Verifying website is live...');
+
+          const liveCheck = await waitForLiveSite(payload.pagesUrl, DEPLOY_PING_TIMEOUT_MS, DEPLOY_PING_INTERVAL_MS);
+          if (!liveCheck.live) {
+            throw new Error('Deployment finished, but the website is not live yet. Please wait a minute and try opening again.');
+          }
+
+          completeDeployProgress();
+
           setStatus('Deployed to ' + payload.pagesUrl);
           showDeployResult(payload.pagesUrl, payload.repositoryUrl);
         } catch (error) {
           console.error(error);
+          resetDeployProgress();
           setStatus('Deploy failed: ' + error.message);
           hideDeployResult();
           window.alert('Deploy failed: ' + error.message);
         } finally {
           await updateAuthStatus();
           setDeployEnabled(isAuthed && currentStep === 4);
+          if (deployResult.hidden) {
+            resetDeployProgress();
+          }
         }
       }
 
